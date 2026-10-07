@@ -152,8 +152,8 @@
     tri: "fill", blob: "fill", strip: "fill", zig: "stroke", wave: "stroke", ring: "stroke" };
   var NAMES = { stamp: "date stamp", scallop: "scallop", circle: "circle", half: "half moon", arch: "arch", burst: "burst",
     star: "star", tri: "triangle", blob: "blob", strip: "paper strip", zig: "zigzag", wave: "wave", ring: "ring" };
-  var HEX = { butter: "#F4E8AB", lilac: "#C7AFE8" };
-  var CYCLE = ["butter", "lilac", "butter-line", "lilac-line"];
+  var HEX = { butter: "#F4E8AB", lilac: "#C7AFE8", forest: "#183F35" };
+  var CYCLE = ["butter", "lilac", "forest", "butter-line", "lilac-line"];
   var NS = "http://www.w3.org/2000/svg";
 
   var maker = $("maker");

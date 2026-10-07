@@ -728,3 +728,20 @@ main:focus { outline: none; }
   .tools button { padding: 5px 11px; font-size: 0.86rem; min-height: 36px; }
   .tray { gap: 6px; }
 }
+
+/* ======================================================
+   Round 5: speaker photos (riso tritone, room-share ring)
+   ====================================================== */
+.initials.portrait {
+  padding: 7px; border: 0; overflow: visible; display: block;
+  background: conic-gradient(var(--forest) 0 calc(var(--a) / (var(--a) + var(--b)) * 100%), var(--lilac) 0);
+  box-shadow: 0 0 0 2px var(--butter), inset 0 0 0 2px var(--butter);
+}
+.speaker-lead .initials.portrait { padding: 10px; }
+.initials.portrait img {
+  display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+  border: 2px solid var(--butter);
+  filter: url(#riso); transition: filter 200ms ease;
+}
+.speaker:hover .initials.portrait img, .speaker:focus-within .initials.portrait img { filter: none; }
+@media (min-width: 880px) { .speaker-lead .initials.portrait { padding: 12px; } }
