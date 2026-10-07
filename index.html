@@ -19,9 +19,14 @@
     <filter id="riso" color-interpolation-filters="sRGB">
       <feColorMatrix type="matrix" values=".3 .59 .11 0 0  .3 .59 .11 0 0  .3 .59 .11 0 0  0 0 0 1 0"/>
       <feComponentTransfer>
-        <feFuncR type="table" tableValues="0.094 0.78 0.957"/>
-        <feFuncG type="table" tableValues="0.247 0.686 0.91"/>
-        <feFuncB type="table" tableValues="0.208 0.91 0.671"/>
+        <feFuncR type="linear" slope="1.35" intercept="-0.12"/>
+        <feFuncG type="linear" slope="1.35" intercept="-0.12"/>
+        <feFuncB type="linear" slope="1.35" intercept="-0.12"/>
+      </feComponentTransfer>
+      <feComponentTransfer>
+        <feFuncR type="table" tableValues="0.094 0.957"/>
+        <feFuncG type="table" tableValues="0.247 0.91"/>
+        <feFuncB type="table" tableValues="0.208 0.671"/>
       </feComponentTransfer>
     </filter>
   </svg>
