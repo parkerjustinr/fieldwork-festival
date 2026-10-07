@@ -33,14 +33,35 @@
     });
   });
 
-  // Links from speakers to a schedule slot: show that slot's day first.
+  // Cross-links: speaker session -> its exact schedule tile, schedule name -> that speaker.
+  // The target glows for a few seconds, then stays marked until something else is picked.
+  var picked = null;
+  function pick(el) {
+    if (picked && picked !== el) picked.classList.remove("is-picked", "is-flash");
+    picked = el;
+    el.classList.remove("is-flash");
+    void el.offsetWidth; // restart the glow if the same item is picked again
+    el.classList.add("is-picked", "is-flash");
+    clearTimeout(pick.t);
+    pick.t = setTimeout(function () { el.classList.remove("is-flash"); }, 5000);
+  }
   document.addEventListener("click", function (e) {
-    var a = e.target.closest && e.target.closest('a[href^="#sat-"], a[href^="#sun-"]');
+    var a = e.target.closest && e.target.closest("a[data-pick]");
     if (!a) return;
-    var slot = document.getElementById(a.getAttribute("href").slice(1));
-    var day = slot && slot.closest(".day");
+    var target = document.getElementById(a.getAttribute("data-pick"));
+    if (!target) return;
+    var day = target.closest(".day");
     if (day) activateDay(day.id);
+    pick(target);
   });
+  // Arriving with a link already in the address bar
+  if (location.hash) {
+    var initial = document.getElementById(location.hash.slice(1));
+    if (initial && (initial.classList.contains("s") || initial.classList.contains("speaker"))) {
+      var d0 = initial.closest(".day"); if (d0) activateDay(d0.id);
+      pick(initial);
+    }
+  }
 
   // ---------- Pass matrix ----------
   var form = $("pass-form");

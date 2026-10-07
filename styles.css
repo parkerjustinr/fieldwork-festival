@@ -506,8 +506,6 @@ main:focus { outline: none; }
 .s-who a:hover, .sp-sessions a:hover { text-decoration-thickness: 3px; }
 .s-main :focus-visible, .speakers :focus-visible { outline-color: var(--butter); }
 .slot, .speaker { scroll-margin-top: 96px; }
-.slot:target .s:not(.s-wide), .slot:target .s-wide { outline: 4px solid var(--lilac); outline-offset: 3px; }
-.speaker:target .initials { outline: 4px solid var(--lilac); outline-offset: 4px; }
 
 /* ---------- Pass matrix ---------- */
 .passes .wrap { display: grid; gap: 28px; }
@@ -809,3 +807,25 @@ main:focus { outline: none; }
   .js .art-sticker { left: auto; right: 226px; }
 }
 @media (max-width: 959px) and (max-height: 600px) { .js .art-sticker { right: 190px; } }
+
+/* Picked from a cross-link: one exact tile or speaker glows ~5s, then stays marked */
+.s, .speaker { scroll-margin-top: 150px; }
+@media (min-width: 1100px) { .s, .speaker { scroll-margin-top: 40px; } }
+.s.is-picked, html:not(.js) .s:target { outline: 3px solid var(--forest); outline-offset: 4px; }
+.s.is-picked.is-flash { animation: tile-glow 1.25s ease-in-out 4; }
+@keyframes tile-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(24, 63, 53, 0), 0 0 0 0 rgba(199, 175, 232, 0); transform: none; }
+  50% { box-shadow: 0 0 0 4px #FBF7EA, 0 0 0 9px #183F35, 0 0 20px 9px rgba(199, 175, 232, 0.9); transform: scale(1.02); }
+}
+}
+.speaker.is-picked .initials, html:not(.js) .speaker:target .initials { outline: 3px solid var(--butter); outline-offset: 5px; }
+.speaker.is-picked h3 { text-decoration: underline; text-decoration-color: var(--lilac); text-decoration-thickness: 4px; text-underline-offset: 6px; }
+.speaker.is-picked.is-flash .initials { animation: face-glow 1.25s ease-in-out 4; }
+@keyframes face-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(244, 232, 171, 0); transform: none; }
+  50% { box-shadow: 0 0 0 10px rgba(244, 232, 171, 0.9), 0 0 32px 14px rgba(244, 232, 171, 0.45); transform: scale(1.05); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .s.is-picked.is-flash, .speaker.is-picked.is-flash .initials { animation: none; }
+}
+.s.is-picked { position: relative; z-index: 2; }
