@@ -147,45 +147,274 @@
     new IntersectionObserver(function (es) { passesVisible = es[0].isIntersecting; update(); }, { rootMargin: "0px 0px -20% 0px" }).observe(passes);
   }
 
-  // ---------- Hero collage: drag the cut-paper shapes (mouse and trackpad) ----------
-  var art = document.querySelector(".hero-art");
-  if (art && window.matchMedia("(pointer: fine)").matches) {
+  // ---------- Poster maker: cut-paper collage in the hero ----------
+  var KINDS = { stamp: "fill", scallop: "fill", circle: "fill", half: "fill", arch: "fill", burst: "fill", star: "fill",
+    tri: "fill", blob: "fill", strip: "fill", zig: "stroke", wave: "stroke", ring: "stroke" };
+  var NAMES = { stamp: "date stamp", scallop: "scallop", circle: "circle", half: "half moon", arch: "arch", burst: "burst",
+    star: "star", tri: "triangle", blob: "blob", strip: "paper strip", zig: "zigzag", wave: "wave", ring: "ring" };
+  var HEX = { butter: "#F4E8AB", lilac: "#C7AFE8" };
+  var CYCLE = ["butter", "lilac", "butter-line", "lilac-line"];
+  var NS = "http://www.w3.org/2000/svg";
+
+  var maker = $("maker");
+  var svg = $("maker-svg");
+  var layer = $("pieces");
+  var live = $("maker-live");
+  var tools = maker ? maker.querySelector(".tools") : null;
+  var selected = null;
+  var initialMarkup = layer ? layer.innerHTML : "";
+  var active = false;
+
+  function say(msg) { if (live) { live.textContent = ""; setTimeout(function () { live.textContent = msg; }, 30); } }
+  function num(el, k) { return parseFloat(el.getAttribute("data-" + k)); }
+  function colorName(c) { return c.replace("-line", " outline"); }
+  function label(el) { return colorName(el.getAttribute("data-color")) + " " + NAMES[el.getAttribute("data-shape")]; }
+
+  function paint(use, kind, color) {
+    var base = color.split("-")[0], line = /-line$/.test(color), c = HEX[base];
+    ["fill", "stroke", "stroke-width", "stroke-dasharray", "stroke-linecap", "stroke-linejoin"].forEach(function (a) { use.removeAttribute(a); });
+    if (kind === "fill") {
+      if (line) { use.setAttribute("fill", "none"); use.setAttribute("stroke", c); use.setAttribute("stroke-width", "6"); use.setAttribute("stroke-linejoin", "round"); }
+      else use.setAttribute("fill", c);
+    } else {
+      use.setAttribute("fill", "none"); use.setAttribute("stroke", c); use.setAttribute("stroke-width", "7");
+      use.setAttribute("stroke-linecap", "round"); use.setAttribute("stroke-linejoin", "round");
+      if (line) use.setAttribute("stroke-dasharray", "10 9");
+    }
+  }
+  function place(el) {
+    el.setAttribute("transform", "translate(" + num(el, "x") + " " + num(el, "y") + ") rotate(" + num(el, "r") + ") scale(" + num(el, "s") + ")");
+  }
+  function set(el, k, v) { el.setAttribute("data-" + k, Math.round(v * 100) / 100); place(el); }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+  function prep(el) {
+    el.setAttribute("tabindex", active ? "0" : "-1");
+    el.setAttribute("role", "button");
+    el.setAttribute("aria-label", label(el) + ". Drag or use arrow keys to move. R rotates, plus and minus resize, C recolors, Delete removes.");
+  }
+  function select(el) {
+    if (selected === el) return;
+    if (selected) { var old = selected.querySelector(".sel"); if (old) old.parentNode.removeChild(old); selected.classList.remove("is-selected"); }
+    selected = el;
+    if (tools) tools.classList.toggle("is-on", !!el);
+    if (!el) return;
+    el.classList.add("is-selected");
+    var use = el.querySelector("use");
+    var bb = use.getBBox(), pad = 8;
+    var r = document.createElementNS(NS, "rect");
+    r.setAttribute("class", "sel");
+    r.setAttribute("x", bb.x - pad); r.setAttribute("y", bb.y - pad);
+    r.setAttribute("width", bb.width + pad * 2); r.setAttribute("height", bb.height + pad * 2);
+    r.setAttribute("rx", 6); r.setAttribute("fill", "none"); r.setAttribute("stroke", "#FBF7EA");
+    r.setAttribute("stroke-width", "2"); r.setAttribute("stroke-dasharray", "6 5"); r.setAttribute("vector-effect", "non-scaling-stroke");
+    el.appendChild(r);
+  }
+  function toFront(el) { layer.appendChild(el); }
+
+  function addPiece(shape) {
+    if (layer.children.length >= 40) { say("That's a full poster. Remove a piece to add more."); return; }
+    var colors = ["butter", "lilac", "butter", "lilac", "butter-line", "lilac-line"];
+    var color = colors[Math.floor(Math.random() * colors.length)];
+    var g = document.createElementNS(NS, "g");
+    g.setAttribute("class", "piece");
+    g.setAttribute("data-shape", shape); g.setAttribute("data-color", color);
+    g.setAttribute("data-x", Math.round(110 + Math.random() * 200));
+    g.setAttribute("data-y", Math.round(80 + Math.random() * 160));
+    g.setAttribute("data-r", Math.round(Math.random() * 60 - 30));
+    g.setAttribute("data-s", (0.7 + Math.random() * 0.6).toFixed(2));
+    var inner = document.createElementNS(NS, "g");
+    inner.setAttribute("class", "pop is-new");
+    var use = document.createElementNS(NS, "use");
+    use.setAttribute("href", "#sh-" + shape);
+    paint(use, KINDS[shape], color);
+    inner.appendChild(use); g.appendChild(inner); layer.appendChild(g);
+    place(g); prep(g); select(g);
+    say("Added a " + label(g) + ".");
+    return g;
+  }
+
+  function act(name) {
+    var el = selected;
+    if (name === "save") return savePoster();
+    if (name === "shuffle") {
+      Array.prototype.forEach.call(layer.children, function (p) {
+        p.setAttribute("data-x", Math.round(60 + Math.random() * 300));
+        p.setAttribute("data-y", Math.round(50 + Math.random() * 220));
+        p.setAttribute("data-r", Math.round(Math.random() * 90 - 45));
+        place(p);
+      });
+      select(null); say("Shuffled."); return;
+    }
+    if (name === "reset") { layer.innerHTML = initialMarkup; Array.prototype.forEach.call(layer.children, prep); select(null); say("Back to the original collage."); return; }
+    if (!el) { say("Pick a shape first."); return; }
+    if (name === "rotate") set(el, "r", (num(el, "r") + 15) % 360);
+    if (name === "bigger") set(el, "s", clamp(num(el, "s") * 1.15, 0.3, 3));
+    if (name === "smaller") set(el, "s", clamp(num(el, "s") / 1.15, 0.3, 3));
+    if (name === "color") {
+      var next = CYCLE[(CYCLE.indexOf(el.getAttribute("data-color")) + 1) % CYCLE.length];
+      el.setAttribute("data-color", next);
+      paint(el.querySelector("use"), KINDS[el.getAttribute("data-shape")], next);
+      prep(el); say("Now " + colorName(next) + ".");
+    }
+    if (name === "front") { toFront(el); el.focus && active && el.focus(); }
+    if (name === "remove") {
+      var nxt = el.nextElementSibling || el.previousElementSibling;
+      select(null); layer.removeChild(el); say("Removed.");
+      if (nxt && active) { select(nxt); nxt.focus(); }
+      return;
+    }
+    if (name !== "remove") { var keep = el; select(null); select(keep); }
+  }
+
+  function setActive(on) {
+    active = on;
+    maker.classList.toggle("is-active", on);
+    if (on) { svg.removeAttribute("aria-hidden"); svg.setAttribute("role", "group"); svg.setAttribute("aria-label", "Collage canvas"); }
+    else { svg.setAttribute("aria-hidden", "true"); svg.removeAttribute("role"); select(null); }
+    Array.prototype.forEach.call(layer.children, prep);
+  }
+
+  if (maker && svg && layer) {
+    Array.prototype.forEach.call(layer.children, prep);
+    // The paste-in animation plays once. Strip it after so moving the maker (phone sheet) doesn't replay it.
+    var settle = function () { Array.prototype.forEach.call(layer.querySelectorAll(".paste"), function (n) { n.classList.remove("paste", "p1", "p2", "p3", "p4", "p5"); }); };
+    setTimeout(settle, 1400);
+    layer.addEventListener("animationend", function (e) { e.target.classList.remove("is-new"); });
+
+    maker.querySelector(".tray").addEventListener("click", function (e) {
+      var b = e.target.closest("[data-add]"); if (b && active) addPiece(b.getAttribute("data-add"));
+    });
+    maker.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-act]"); if (b && active) act(b.getAttribute("data-act"));
+    });
+
+    // Drag with mouse, pen or finger
     var drag = null;
     var toSvg = function (e) {
-      var pt = art.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
-      return pt.matrixTransform(art.getScreenCTM().inverse());
+      var pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+      return pt.matrixTransform(svg.getScreenCTM().inverse());
     };
-    art.addEventListener("pointerdown", function (e) {
-      var el = e.target.closest(".paste");
-      if (!el || !desktop.matches) return;
-      var group = (el.getAttribute("class").match(/\bp\d\b/) || [])[0];
-      var parts = all("." + group, art);
+    svg.addEventListener("pointerdown", function (e) {
+      if (!active) return;
+      var el = e.target.closest(".piece");
+      if (!el) { select(null); return; }
       var p = toSvg(e);
-      drag = {
-        parts: parts, x: p.x, y: p.y,
-        dx: parseFloat(parts[0].getAttribute("data-dx") || 0),
-        dy: parseFloat(parts[0].getAttribute("data-dy") || 0)
-      };
-      parts.forEach(function (n) { art.appendChild(n); n.classList.add("is-dragging"); n.style.animation = "none"; });
-      art.setPointerCapture(e.pointerId);
+      toFront(el); select(el);
+      drag = { el: el, ox: p.x - num(el, "x"), oy: p.y - num(el, "y"), id: e.pointerId, moved: false };
+      el.classList.add("is-dragging");
+      try { svg.setPointerCapture(e.pointerId); } catch (err) { /* capture is optional */ }
       e.preventDefault();
     });
-    art.addEventListener("pointermove", function (e) {
-      if (!drag) return;
+    svg.addEventListener("pointermove", function (e) {
+      if (!drag || e.pointerId !== drag.id) return;
       var p = toSvg(e);
-      var dx = Math.max(-260, Math.min(260, drag.dx + p.x - drag.x));
-      var dy = Math.max(-200, Math.min(200, drag.dy + p.y - drag.y));
-      drag.parts.forEach(function (n) {
-        n.style.translate = dx + "px " + dy + "px";
-        n.setAttribute("data-dx", dx); n.setAttribute("data-dy", dy);
-      });
+      drag.moved = true;
+      drag.el.setAttribute("data-x", Math.round(clamp(p.x - drag.ox, -20, 440)));
+      drag.el.setAttribute("data-y", Math.round(clamp(p.y - drag.oy, -20, 340)));
+      place(drag.el);
     });
-    var end = function () {
-      if (!drag) return;
-      drag.parts.forEach(function (n) { n.classList.remove("is-dragging"); });
-      drag = null;
+    var end = function () { if (drag) { drag.el.classList.remove("is-dragging"); drag = null; } };
+    svg.addEventListener("pointerup", end);
+    svg.addEventListener("pointercancel", end);
+    svg.addEventListener("dblclick", function (e) { if (active && e.target.closest(".piece")) act("color"); });
+
+    // Keyboard on a focused piece
+    svg.addEventListener("focusin", function (e) { var el = e.target.closest(".piece"); if (el && active) select(el); });
+    svg.addEventListener("keydown", function (e) {
+      var el = e.target.closest(".piece"); if (!el || !active) return;
+      var step = e.shiftKey ? 20 : 6, k = e.key, used = true;
+      if (k === "ArrowLeft") set(el, "x", num(el, "x") - step);
+      else if (k === "ArrowRight") set(el, "x", num(el, "x") + step);
+      else if (k === "ArrowUp") set(el, "y", num(el, "y") - step);
+      else if (k === "ArrowDown") set(el, "y", num(el, "y") + step);
+      else if (k === "r" || k === "R") set(el, "r", (num(el, "r") + (e.shiftKey ? -15 : 15)) % 360);
+      else if (k === "+" || k === "=") act("bigger");
+      else if (k === "-" || k === "_") act("smaller");
+      else if (k === "c" || k === "C") act("color");
+      else if (k === "Delete" || k === "Backspace") act("remove");
+      else if (k === "Escape") { select(null); el.blur(); }
+      else used = false;
+      if (used) e.preventDefault();
+    });
+
+    // Desktop: the maker lives in the hero. Phones: it opens in a full-screen sheet and the result comes back to the hero.
+    var home = maker.parentNode, homeNext = maker.nextSibling;
+    var dialog = $("maker-dialog"), slot = $("maker-slot");
+    var syncMode = function () { if (!dialog || !dialog.open) setActive(desktop.matches); };
+    syncMode();
+    if (desktop.addEventListener) desktop.addEventListener("change", syncMode);
+
+    var openBtn = $("maker-open");
+    if (openBtn && dialog && dialog.showModal) {
+      openBtn.addEventListener("click", function () {
+        settle();
+        slot.appendChild(maker); setActive(true); dialog.showModal(); say("Collage maker open.");
+      });
+      var close = function () { if (dialog.open) dialog.close(); };
+      $("maker-close").addEventListener("click", close);
+      dialog.addEventListener("close", function () {
+        home.insertBefore(maker, homeNext); setActive(desktop.matches); openBtn.focus();
+      });
+    } else if (openBtn) { openBtn.hidden = true; }
+  }
+
+  // ---------- Save the collage as a poster PNG ----------
+  function savePoster() {
+    var W = 1080, H = 1350, K = 2.4, OX = 36, OY = 70;
+    var canvas = document.createElement("canvas"); canvas.width = W; canvas.height = H;
+    var ctx = canvas.getContext("2d");
+    var clone = svg.cloneNode(true);
+    clone.removeAttribute("class"); clone.setAttribute("width", 420); clone.setAttribute("height", 320);
+    Array.prototype.forEach.call(clone.querySelectorAll(".sel, text, .mat"), function (n) { n.parentNode.removeChild(n); });
+    var src = new XMLSerializer().serializeToString(clone);
+    var img = new Image();
+    var url = URL.createObjectURL(new Blob([src], { type: "image/svg+xml;charset=utf-8" }));
+    say("Making your poster.");
+    var fontsReady = document.fonts && document.fonts.load ? Promise.all([
+      document.fonts.load('800 100px "Bricolage"'), document.fonts.load('600 30px "Instrument"')
+    ]) : Promise.resolve();
+    img.onload = function () {
+      fontsReady.then(function () {
+        ctx.fillStyle = "#183F35"; ctx.fillRect(0, 0, W, H);
+        ctx.drawImage(img, OX, OY, 420 * K, 320 * K);
+        URL.revokeObjectURL(url);
+        // Stamp text, drawn with the page fonts at each stamp's position
+        Array.prototype.forEach.call(layer.querySelectorAll('.piece[data-shape="stamp"]'), function (p) {
+          ctx.save();
+          ctx.translate(OX + num(p, "x") * K, OY + num(p, "y") * K);
+          ctx.rotate(num(p, "r") * Math.PI / 180);
+          ctx.scale(num(p, "s") * K, num(p, "s") * K);
+          ctx.fillStyle = "#183F35"; ctx.textAlign = "center";
+          ctx.font = '700 17px "Bricolage", Arial, sans-serif'; ctx.fillText("FOUNDRY YARD, LA", 0, -22); ctx.fillText("2026", 0, 54);
+          ctx.font = 'condensed 800 52px "Bricolage", Arial, sans-serif'; ctx.fillText("DEC 5-6", 0, 26);
+          ctx.restore();
+        });
+        // Wordmark, printed in two passes like the site
+        ctx.textAlign = "left";
+        var size = 250;
+        ctx.font = "condensed 800 " + size + 'px "Bricolage", Arial, sans-serif';
+        while (ctx.measureText("FIELDWORK").width > W - 96 && size > 120) { size -= 6; ctx.font = "condensed 800 " + size + 'px "Bricolage", Arial, sans-serif'; }
+        var y = 1080;
+        ctx.fillStyle = "#C7AFE8"; ctx.fillText("FIELDWORK", 48 + size * 0.03, y + size * 0.026);
+        ctx.fillStyle = "#F4E8AB"; ctx.fillText("FIELDWORK", 48, y);
+        ctx.fillStyle = "#C7AFE8"; ctx.font = '700 34px "Bricolage", Arial, sans-serif';
+        if ("letterSpacing" in ctx) ctx.letterSpacing = "12px";
+        ctx.fillText("FESTIVAL", 52, y + 62);
+        if ("letterSpacing" in ctx) ctx.letterSpacing = "0px";
+        ctx.fillStyle = "#F4E8AB"; ctx.font = '600 32px "Instrument", Arial, sans-serif';
+        ctx.fillText("December 5 and 6, 2026. Foundry Yard, Los Angeles.", 52, y + 126);
+        ctx.fillStyle = "#C7AFE8"; ctx.font = '600 22px "Instrument", Arial, sans-serif';
+        ctx.fillText("Fictional event. Concept demo for Arrived.", 52, H - 44);
+        canvas.toBlob(function (blob) {
+          var a = document.createElement("a");
+          a.href = URL.createObjectURL(blob); a.download = "my-fieldwork-poster.png";
+          document.body.appendChild(a); a.click();
+          setTimeout(function () { URL.revokeObjectURL(a.href); a.parentNode.removeChild(a); }, 1500);
+          say("Poster saved.");
+        }, "image/png");
+      });
     };
-    art.addEventListener("pointerup", end);
-    art.addEventListener("pointercancel", end);
+    img.src = url;
   }
 })();

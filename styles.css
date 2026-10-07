@@ -634,3 +634,97 @@ main:focus { outline: none; }
 
 .matrix .m-group th { text-align: left; padding: 18px 4px 6px; font-family: var(--display); font-weight: 800; font-stretch: 75%; text-transform: uppercase; font-size: 1.15rem; letter-spacing: 0.02em; border-top: 0; }
 .matrix tbody tr.m-group + tr th, .matrix tbody tr.m-group + tr td { border-top-width: 2px; }
+
+/* ======================================================
+   Round 4: poster maker + torn edges on every boundary
+   ====================================================== */
+
+/* Maker layout: phones show the art only (the maker opens in a sheet); desktop shows the full maker in the hero */
+.maker { display: contents; }
+.maker-ui, .make-open { display: none; }
+.maker:not(.is-active) .mat { display: none; }
+.js .make-open { display: inline-flex; }
+.btn-lilac { background: var(--lilac); color: var(--forest); }
+@media (max-width: 959px) {
+  .make-open { order: 3; align-self: flex-start; margin-top: 22px; }
+  .hero-facts { order: 4; }
+}
+@media (min-width: 960px) {
+  .js .make-open { display: none; }
+  .maker { display: block; grid-column: 2; grid-row: 1; align-self: start; margin-top: 4px; }
+  .maker .hero-art { width: 100%; max-width: none; display: block; margin: 0; }
+  .js .maker-ui { display: grid; }
+}
+
+/* Active maker (desktop hero or phone sheet) */
+.maker.is-active .hero-art { touch-action: none; overflow: hidden; border-radius: 10px; }
+.mat-bg { fill: #214a3f; }
+.mat-grid line { stroke: #F4E8AB; stroke-opacity: 0.09; stroke-width: 1; }
+.maker.is-active .piece { cursor: grab; outline: none; }
+.maker.is-active .piece.is-dragging { cursor: grabbing; }
+.piece.is-dragging .pop { transform: scale(1.06); transition: transform 120ms ease; }
+.pop { transform-box: fill-box; transform-origin: center; }
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.35) rotate(-25deg); }
+  70% { opacity: 1; transform: scale(1.08) rotate(4deg); }
+  to { opacity: 1; transform: none; }
+}
+.pop.is-new { animation: pop-in 420ms cubic-bezier(.2,.9,.25,1.2) both; }
+
+.maker-ui { gap: 14px; margin-top: 14px; }
+.maker-title { font-family: var(--display); font-weight: 750; font-size: 1.35rem; line-height: 1.15; }
+.maker-title span { display: block; font-family: var(--body); font-weight: 500; font-size: 0.92rem; color: var(--lilac); margin-top: 2px; }
+.tray { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.tray-btn {
+  appearance: none; width: 100%; aspect-ratio: 1; min-height: 44px; padding: 6px; cursor: pointer;
+  background: transparent; border: 2px solid rgba(244, 232, 171, 0.35); border-radius: 10px;
+  display: grid; place-items: center; transition: background-color 120ms ease, transform 120ms ease, border-color 120ms ease;
+}
+.tray-btn svg { width: 100%; height: 100%; max-width: 44px; }
+.tray-btn:hover { background: rgba(244, 232, 171, 0.1); border-color: var(--butter); transform: translateY(-2px) rotate(-3deg); }
+.tray-btn:active { transform: scale(0.94); }
+.tools { display: flex; flex-wrap: wrap; gap: 6px; }
+.tools button, .link-btn {
+  appearance: none; font: inherit; font-weight: 600; font-size: 0.92rem; color: var(--butter); cursor: pointer;
+  background: transparent; border: 1.5px solid rgba(244, 232, 171, 0.55); border-radius: 999px; min-height: 40px; padding: 6px 14px;
+  transition: background-color 120ms ease, color 120ms ease, opacity 120ms ease;
+}
+.tools button:hover { background: var(--butter); color: var(--forest); }
+.tools:not(.is-on) button { opacity: 0.4; }
+.maker-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.link-btn { border: 0; padding: 6px 4px; text-decoration: underline; text-underline-offset: 3px; }
+.link-btn:hover { text-decoration-thickness: 3px; }
+@media (pointer: coarse) { .tools button { min-height: 44px; } .link-btn { min-height: 44px; } }
+
+/* Phone sheet */
+.maker-dialog {
+  width: 100%; max-width: 100%; height: 100%; max-height: 100%; margin: 0; padding: 0; border: 0;
+  background: var(--forest); color: var(--butter);
+}
+.maker-dialog::backdrop { background: var(--forest); }
+.maker-dialog[open] { display: flex; flex-direction: column; }
+.md-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px var(--gutter); border-bottom: 2px solid rgba(244, 232, 171, 0.25); }
+.md-head h2 { font-size: 1.3rem; font-weight: 750; }
+.md-body { flex: 1; overflow-y: auto; padding: 16px var(--gutter) 24px; }
+.maker-dialog .maker { display: block; }
+.maker-dialog .hero-art { width: 100%; max-width: none; margin: 0; display: block; }
+.maker-dialog .maker-ui { display: grid; }
+.maker-dialog .maker-title { display: none; }
+.maker-dialog .tray { grid-template-columns: repeat(6, 1fr); }
+/* Torn edges: every boundary. Each tear sits at the bottom of a section, filled with the next section's color. */
+.demo-banner { position: relative; padding-top: 6px; padding-bottom: 12px; }
+.demo-banner p { margin: 0; }
+.tear-sm { height: 12px !important; }
+.overview, .schedule, .passes { position: relative; }
+.schedule { border-top: 0; }
+.overview { padding-bottom: 72px; }
+.schedule { padding-bottom: 84px; }
+.passes { padding-bottom: 96px; }
+.speakers { padding-top: 56px; }
+@media (min-width: 880px) { .overview { padding-bottom: 100px; } }
+
+@media (min-width: 960px) {
+  .tools { gap: 5px; }
+  .tools button { padding: 5px 11px; font-size: 0.86rem; min-height: 36px; }
+  .tray { gap: 6px; }
+}
