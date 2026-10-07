@@ -191,13 +191,18 @@
   function prep(el) {
     el.setAttribute("tabindex", active ? "0" : "-1");
     el.setAttribute("role", "button");
-    el.setAttribute("aria-label", label(el) + ". Drag or use arrow keys to move. R rotates, plus and minus resize, C recolors, Delete removes.");
+    el.setAttribute("aria-label", label(el) + ". Drag or use arrow keys to move. R rotates, plus and minus resize, C recolors, F and B move it front or back" +
+      (isFixed(el) ? ". The date stamp stays on every poster." : ", Delete removes."));
   }
   function select(el) {
     if (selected === el) return;
     if (selected) { var old = selected.querySelector(".sel"); if (old) old.parentNode.removeChild(old); selected.classList.remove("is-selected"); }
     selected = el;
-    if (tools) tools.classList.toggle("is-on", !!el);
+    if (tools) {
+      tools.classList.toggle("is-on", !!el);
+      var rm = tools.querySelector('[data-act="remove"]');
+      if (rm) { rm.classList.toggle("is-locked", isFixed(el)); rm.setAttribute("aria-disabled", String(!el || isFixed(el))); }
+    }
     if (!el) return;
     el.classList.add("is-selected");
     var use = el.querySelector("use");
@@ -210,7 +215,9 @@
     r.setAttribute("stroke-width", "2"); r.setAttribute("stroke-dasharray", "6 5"); r.setAttribute("vector-effect", "non-scaling-stroke");
     el.appendChild(r);
   }
+  function isFixed(el) { return el && el.getAttribute("data-shape") === "stamp"; }
   function toFront(el) { layer.appendChild(el); }
+  function toBack(el) { layer.insertBefore(el, layer.firstChild); }
 
   function addPiece(shape) {
     if (layer.children.length >= 40) { say("That's a full poster. Remove a piece to add more."); return; }
@@ -246,18 +253,25 @@
       });
       select(null); say("Shuffled."); return;
     }
+    if (name === "clear") {
+      Array.prototype.slice.call(layer.children).forEach(function (p) { if (!isFixed(p)) layer.removeChild(p); });
+      select(null); say("Cleared. The date stamp stays. Add shapes from the tray."); return;
+    }
     if (name === "reset") { layer.innerHTML = initialMarkup; Array.prototype.forEach.call(layer.children, prep); select(null); say("Back to the original collage."); return; }
     if (!el) { say("Pick a shape first."); return; }
     if (name === "rotate") set(el, "r", (num(el, "r") + 15) % 360);
-    if (name === "bigger") set(el, "s", clamp(num(el, "s") * 1.15, 0.3, 3));
-    if (name === "smaller") set(el, "s", clamp(num(el, "s") / 1.15, 0.3, 3));
+    if (name === "bigger") set(el, "s", clamp(num(el, "s") * 1.15, 0.25, 4.5));
+    if (name === "smaller") set(el, "s", clamp(num(el, "s") / 1.15, 0.25, 4.5));
     if (name === "color") {
       var next = CYCLE[(CYCLE.indexOf(el.getAttribute("data-color")) + 1) % CYCLE.length];
       el.setAttribute("data-color", next);
       paint(el.querySelector("use"), KINDS[el.getAttribute("data-shape")], next);
       prep(el); say("Now " + colorName(next) + ".");
     }
-    if (name === "front") { toFront(el); el.focus && active && el.focus(); }
+    if (name === "front") { toFront(el); say("Moved to the front."); }
+    if (name === "back") { toBack(el); say("Moved to the back."); }
+    if ((name === "front" || name === "back") && active && el.focus) el.focus();
+    if (name === "remove" && isFixed(el)) { say("The date stamp stays on every poster. You can move, resize or recolor it."); return; }
     if (name === "remove") {
       var nxt = el.nextElementSibling || el.previousElementSibling;
       select(null); layer.removeChild(el); say("Removed.");
@@ -300,7 +314,7 @@
       var el = e.target.closest(".piece");
       if (!el) { select(null); return; }
       var p = toSvg(e);
-      toFront(el); select(el);
+      select(el);
       drag = { el: el, ox: p.x - num(el, "x"), oy: p.y - num(el, "y"), id: e.pointerId, moved: false };
       el.classList.add("is-dragging");
       try { svg.setPointerCapture(e.pointerId); } catch (err) { /* capture is optional */ }
@@ -332,6 +346,8 @@
       else if (k === "+" || k === "=") act("bigger");
       else if (k === "-" || k === "_") act("smaller");
       else if (k === "c" || k === "C") act("color");
+      else if (k === "f" || k === "F") act("front");
+      else if (k === "b" || k === "B") act("back");
       else if (k === "Delete" || k === "Backspace") act("remove");
       else if (k === "Escape") { select(null); el.blur(); }
       else used = false;
