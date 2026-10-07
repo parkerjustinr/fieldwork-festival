@@ -745,3 +745,20 @@ main:focus { outline: none; }
 }
 .speaker:hover .initials.portrait img, .speaker:focus-within .initials.portrait img { filter: none; }
 @media (min-width: 880px) { .speaker-lead .initials.portrait { padding: 12px; } }
+
+/* On the forest speakers band, Main Stage shows as butter (forest on forest disappears). Studio stays lilac. */
+.initials.portrait {
+  padding: 9px; box-shadow: none;
+  background: conic-gradient(var(--butter) 0 calc(var(--a) / (var(--a) + var(--b)) * 100%), var(--lilac) 0);
+}
+.initials.portrait.split {
+  --p: calc(var(--a) / (var(--a) + var(--b)) * 100%);
+  background: conic-gradient(
+    var(--butter) 0 calc(var(--p) - 1.2%), var(--forest) 0 var(--p),
+    var(--lilac) 0 98.8%, var(--forest) 0);
+}
+.speaker-lead .initials.portrait { padding: 13px; }
+@media (min-width: 880px) { .speaker-lead .initials.portrait { padding: 15px; } }
+.initials.portrait img { border: 3px solid var(--forest); }
+.speakers .inline-key.key-main { background: var(--butter); box-shadow: none; }
+.speakers .tag-main { background: var(--butter); color: var(--forest); border-color: var(--butter); }
