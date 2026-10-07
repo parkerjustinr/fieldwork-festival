@@ -372,6 +372,8 @@
       dialog.addEventListener("close", function () {
         home.insertBefore(maker, homeNext); setActive(desktop.matches); openBtn.focus();
       });
+      // Phones: tapping the collage itself also opens the maker.
+      svg.addEventListener("click", function () { if (!active && !desktop.matches && !dialog.open) openBtn.click(); });
     } else if (openBtn) { openBtn.hidden = true; }
   }
 
