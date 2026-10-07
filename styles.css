@@ -777,3 +777,12 @@ main:focus { outline: none; }
   .hero-inner { padding-top: 28px; }
 }
 @media (min-width: 960px) { .wm-line { font-size: clamp(6rem, min(13.5rem, 22vh), 13.5rem); } }
+/* Desktop theme lines: stacked vertically with the staggered offsets, tighter to keep buttons above the fold */
+@media (min-width: 960px) {
+  .theme { flex-direction: column; align-items: flex-start; gap: 4px; margin: 16px 0 20px; }
+  .theme span { font-size: 1.2rem; padding: 3px 12px 5px; }
+  .theme-2 { margin-left: 16px; }
+  .theme-3 { margin-left: 6px; }
+  .wm-sub { margin-top: 8px; }
+  .hero-inner { padding-top: 20px; }
+}
