@@ -1,7 +1,8 @@
 /* Fieldwork Festival - concept for Arrived
    Color has a job:
    forest = Main Stage + text + dark fields
-   sage   = Main Stage on the forest speakers band only (forest on forest disappears; butter would read as Maker Market)
+   sage   = Main Stage accent: rings and tags on the forest speakers band (forest on forest disappears; butter would
+            read as Maker Market), plus the inner ring on Main Stage keys/chips and the room label on Main Stage tiles
    lilac  = Studio (hands-on workshops)
    butter = Maker Market + warm fields
    Text pairs used: forest on butter/lilac/paper/sage, butter or lilac on forest. Never lilac on butter. */
@@ -206,7 +207,7 @@ main:focus { outline: none; }
 .legend li { display: flex; gap: 10px; align-items: center; }
 .legend strong { font-family: var(--display); font-weight: 700; margin-right: 4px; }
 .key { width: 28px; height: 18px; border-radius: 5px; flex: 0 0 auto; }
-.key-main { background: var(--forest); }
+.key-main { background: var(--forest); box-shadow: inset 0 0 0 3px var(--sage); }
 .key-studio { background: var(--lilac); }
 .key-market { background: var(--butter); box-shadow: inset 0 0 0 2px var(--forest); }
 @media (min-width: 720px) { .legend { grid-template-columns: repeat(3, auto); justify-content: start; gap: 24px; } }
@@ -260,7 +261,7 @@ main:focus { outline: none; }
 .s h4 { font-size: 1.12rem; font-weight: 700; line-height: 1.12; overflow-wrap: break-word; hyphens: auto; }
 .s-who { font-size: 0.92rem; font-weight: 500; margin-top: auto; padding-top: 4px; }
 .s-main { background: var(--forest); color: var(--butter); }
-.s-main .s-room { color: var(--lilac); }
+.s-main .s-room { color: var(--sage); }
 .s-studio { background: var(--lilac); color: var(--forest); }
 .s-market { background: var(--butter); color: var(--forest); border: 2px solid var(--forest); }
 .s-all { background: transparent; color: var(--forest); border: 2px solid var(--forest); }
@@ -546,7 +547,7 @@ main:focus { outline: none; }
 .m-label-static { cursor: default; }
 .m-label-static:hover { background: transparent; }
 .chip { grid-row: span 2; width: 14px; height: 14px; border-radius: 4px; align-self: center; }
-.chip-main { background: var(--forest); }
+.chip-main { background: var(--forest); box-shadow: inset 0 0 0 2px var(--sage); }
 .chip-studio { background: var(--lilac); box-shadow: inset 0 0 0 2px var(--forest); }
 .chip-market { background: var(--butter); box-shadow: inset 0 0 0 2px var(--forest); }
 .chip-all { box-shadow: inset 0 0 0 2px var(--forest); }
