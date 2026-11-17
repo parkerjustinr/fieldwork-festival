@@ -290,8 +290,8 @@ main:focus { outline: none; }
 .inline-key { display: inline-block; width: 22px; height: 14px; border-radius: 4px; vertical-align: middle; }
 .speakers .inline-key.key-main { background: var(--forest); box-shadow: inset 0 0 0 2px var(--butter); }
 .speakers .inline-key.key-studio { background: var(--lilac); }
-.speaker-list { border-top: 2px solid rgba(244, 232, 171, 0.4); }
-.speaker { display: grid; grid-template-columns: 84px 1fr; gap: 16px; padding: 20px 0; border-bottom: 2px solid rgba(244, 232, 171, 0.4); }
+.speaker-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; }
+.speaker { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; align-content: start; padding: 20px 0 28px; border-top: 2px solid rgba(244, 232, 171, 0.4); }
 .initials {
   width: 84px; height: 84px; border-radius: 50%;
   display: grid; place-items: center; position: relative; overflow: hidden;
@@ -305,7 +305,7 @@ main:focus { outline: none; }
 .initials.studio { background: var(--lilac); }
 /* Split: share of sessions by room, Main Stage on the left */
 .initials.split { background: linear-gradient(90deg, var(--forest) 0 calc(var(--a) / (var(--a) + var(--b)) * 100%), var(--lilac) 0); }
-.speaker h3 { font-size: 1.6rem; font-weight: 750; }
+.speaker h3 { font-size: 1.45rem; font-weight: 750; }
 .role { color: var(--lilac); font-weight: 600; margin-top: 2px; }
 .sp-sessions { margin-top: 10px; display: grid; gap: 8px; }
 .sp-sessions li { display: grid; gap: 2px; font-size: 1rem; }
@@ -313,11 +313,9 @@ main:focus { outline: none; }
 .tag-main { border: 1.5px solid var(--butter); color: var(--butter); }
 .tag-studio { background: var(--lilac); color: var(--forest); }
 @media (min-width: 880px) {
-  .speaker-list { display: grid; grid-template-columns: 1fr 1fr; column-gap: 48px; border-top: 0; }
-  .speaker { grid-template-columns: 112px 1fr; gap: 24px; padding: 28px 0; border-top: 2px solid rgba(244, 232, 171, 0.4); border-bottom: 0; }
-  .initials { width: 112px; height: 112px; }
-  .initials span { font-size: 2.6rem; }
-  .speaker h3 { font-size: 2rem; }
+  .speaker-list { grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 32px; }
+  .speaker { gap: 18px; padding: 28px 0 36px; }
+  .speaker h3 { font-size: 1.75rem; }
 }
 
 /* ---------- Passes ---------- */
@@ -433,25 +431,9 @@ main:focus { outline: none; }
   .hero-art { max-width: 190px; margin-bottom: -18px; }
 }
 
-/* Speakers: Riley leads (opens the festival, three sessions, only listed role). The rest sit as a row of three. */
-.speaker-lead { grid-template-columns: 112px 1fr; }
-.speaker-lead .initials { width: 112px; height: 112px; }
-.speaker-lead .initials span { font-size: 2.6rem; }
-.speaker-lead h3 { font-size: 2.1rem; }
-@media (min-width: 880px) {
-  .speaker-list { grid-template-columns: repeat(3, 1fr); column-gap: 40px; }
-  .speaker { grid-template-columns: 1fr; gap: 16px; align-content: start; }
-  .speaker .initials { width: 96px; height: 96px; }
-  .speaker .initials span { font-size: 2.2rem; }
-  .speaker h3 { font-size: 1.75rem; }
-  .speaker-lead { grid-column: 1 / -1; grid-template-columns: 200px 1fr; gap: 40px; align-items: center; padding: 36px 0 40px; }
-  .speaker-lead .initials { width: 200px; height: 200px; }
-  .speaker-lead .initials span { font-size: 4.4rem; }
-  .speaker-lead h3 { font-size: clamp(2.75rem, 5vw, 4rem); }
-  .speaker-lead .role { font-size: 1.25rem; }
-  .speaker-lead .sp-sessions { grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 18px; }
-  .speaker-lead .sp-sessions li { font-size: 1.1rem; }
-}
+/* Speakers: an even grid of eight, two across on phones, four on desktop. Portraits fill the column up to a cap. */
+.speaker .initials { width: 100%; max-width: 200px; height: auto; aspect-ratio: 1; }
+@media (min-width: 880px) { .speaker .initials { max-width: 224px; } }
 
 /* ======================================================
    Round 3: hero moment, torn-paper edges, pass matrix
@@ -735,14 +717,12 @@ main:focus { outline: none; }
   background: conic-gradient(var(--forest) 0 calc(var(--a) / (var(--a) + var(--b)) * 100%), var(--lilac) 0);
   box-shadow: 0 0 0 2px var(--butter), inset 0 0 0 2px var(--butter);
 }
-.speaker-lead .initials.portrait { padding: 10px; }
 .initials.portrait img {
   display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
   border: 2px solid var(--butter);
   filter: url(#riso); transition: filter 200ms ease;
 }
 .speaker:hover .initials.portrait img, .speaker:focus-within .initials.portrait img { filter: none; }
-@media (min-width: 880px) { .speaker-lead .initials.portrait { padding: 12px; } }
 
 /* On the forest speakers band, Main Stage shows as butter (forest on forest disappears). Studio stays lilac. */
 .initials.portrait {
@@ -755,8 +735,7 @@ main:focus { outline: none; }
     var(--butter) 0 calc(var(--p) - 1.2%), var(--forest) 0 var(--p),
     var(--lilac) 0 98.8%, var(--forest) 0);
 }
-.speaker-lead .initials.portrait { padding: 13px; }
-@media (min-width: 880px) { .speaker-lead .initials.portrait { padding: 15px; } }
+@media (min-width: 880px) { .initials.portrait { padding: 12px; } }
 .initials.portrait img { border: 3px solid var(--forest); }
 .speakers .inline-key.key-main { background: var(--butter); box-shadow: none; }
 .speakers .tag-main { background: var(--butter); color: var(--forest); border-color: var(--butter); }
@@ -816,7 +795,6 @@ main:focus { outline: none; }
 @keyframes tile-glow {
   0%, 100% { box-shadow: 0 0 0 0 rgba(24, 63, 53, 0), 0 0 0 0 rgba(199, 175, 232, 0); transform: none; }
   50% { box-shadow: 0 0 0 4px #FBF7EA, 0 0 0 9px #183F35, 0 0 20px 9px rgba(199, 175, 232, 0.9); transform: scale(1.02); }
-}
 }
 .speaker.is-picked .initials, html:not(.js) .speaker:target .initials { outline: 3px solid var(--butter); outline-offset: 5px; }
 .speaker.is-picked h3 { text-decoration: underline; text-decoration-color: var(--lilac); text-decoration-thickness: 4px; text-underline-offset: 6px; }

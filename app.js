@@ -67,9 +67,9 @@
   var form = $("pass-form");
   var matrix = $("matrix");
   var PASSES = {
-    weekend: { name: "Weekend", price: "$80", days: "Saturday, December 5 and Sunday, December 6", btn: "Reserve a weekend pass, $80" },
-    sat: { name: "Saturday", price: "$45", days: "Saturday, December 5", btn: "Reserve a Saturday pass, $45" },
-    sun: { name: "Sunday", price: "$45", days: "Sunday, December 6", btn: "Reserve a Sunday pass, $45" }
+    weekend: { name: "Weekend", price: "$80", days: "Saturday, December 4 and Sunday, December 5", btn: "Reserve a weekend pass, $80" },
+    sat: { name: "Saturday", price: "$45", days: "Saturday, December 4", btn: "Reserve a Saturday pass, $45" },
+    sun: { name: "Sunday", price: "$45", days: "Sunday, December 5", btn: "Reserve a Sunday pass, $45" }
   };
 
   function currentPass() {
@@ -425,8 +425,8 @@
           ctx.rotate(num(p, "r") * Math.PI / 180);
           ctx.scale(num(p, "s") * K, num(p, "s") * K);
           ctx.fillStyle = "#183F35"; ctx.textAlign = "center";
-          ctx.font = '700 17px "Bricolage", Arial, sans-serif'; ctx.fillText("FOUNDRY YARD, LA", 0, -22); ctx.fillText("2026", 0, 54);
-          ctx.font = 'condensed 800 52px "Bricolage", Arial, sans-serif'; ctx.fillText("DEC 5-6", 0, 26);
+          ctx.font = '700 17px "Bricolage", Arial, sans-serif'; ctx.fillText("FOUNDRY YARD, LA", 0, -22); ctx.fillText("2027", 0, 54);
+          ctx.font = 'condensed 800 52px "Bricolage", Arial, sans-serif'; ctx.fillText("DEC 4-5", 0, 26);
           ctx.restore();
         });
         // Wordmark, printed in two passes like the site
@@ -442,7 +442,7 @@
         ctx.fillText("FESTIVAL", 52, y + 62);
         if ("letterSpacing" in ctx) ctx.letterSpacing = "0px";
         ctx.fillStyle = "#F4E8AB"; ctx.font = '600 32px "Instrument", Arial, sans-serif';
-        ctx.fillText("December 5 and 6, 2026. Foundry Yard, Los Angeles.", 52, y + 126);
+        ctx.fillText("December 4 and 5, 2027. Foundry Yard, Los Angeles.", 52, y + 126);
         ctx.fillStyle = "#C7AFE8"; ctx.font = '600 22px "Instrument", Arial, sans-serif';
         ctx.fillText("Fictional event. Concept demo for Arrived.", 52, H - 44);
         canvas.toBlob(function (blob) {
