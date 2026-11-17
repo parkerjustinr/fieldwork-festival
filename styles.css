@@ -1,9 +1,10 @@
 /* Fieldwork Festival - concept for Arrived
    Color has a job:
    forest = Main Stage + text + dark fields
+   sage   = Main Stage on the forest speakers band only (forest on forest disappears; butter would read as Maker Market)
    lilac  = Studio (hands-on workshops)
    butter = Maker Market + warm fields
-   Text pairs used: forest on butter/lilac/paper, butter or lilac on forest. Never lilac on butter. */
+   Text pairs used: forest on butter/lilac/paper/sage, butter or lilac on forest. Never lilac on butter. */
 
 @font-face {
   font-family: "Bricolage";
@@ -24,6 +25,7 @@
   --forest: #183F35;
   --butter: #F4E8AB;
   --lilac: #C7AFE8;
+  --sage: #7FB59C;
   --paper: #FBF7EA;
   --display: "Bricolage", "Arial Narrow", Arial, sans-serif;
   --body: "Instrument", "Helvetica Neue", Arial, sans-serif;
@@ -724,21 +726,22 @@ main:focus { outline: none; }
 }
 .speaker:hover .initials.portrait img, .speaker:focus-within .initials.portrait img { filter: none; }
 
-/* On the forest speakers band, Main Stage shows as butter (forest on forest disappears). Studio stays lilac. */
+/* On the forest speakers band, Main Stage shows as sage, a light tint of forest (forest on forest disappears, and butter
+   would read as Maker Market). Studio stays lilac. */
 .initials.portrait {
   padding: 9px; box-shadow: none;
-  background: conic-gradient(var(--butter) 0 calc(var(--a) / (var(--a) + var(--b)) * 100%), var(--lilac) 0);
+  background: conic-gradient(var(--sage) 0 calc(var(--a) / (var(--a) + var(--b)) * 100%), var(--lilac) 0);
 }
 .initials.portrait.split {
   --p: calc(var(--a) / (var(--a) + var(--b)) * 100%);
   background: conic-gradient(
-    var(--butter) 0 calc(var(--p) - 1.2%), var(--forest) 0 var(--p),
+    var(--sage) 0 calc(var(--p) - 1.2%), var(--forest) 0 var(--p),
     var(--lilac) 0 98.8%, var(--forest) 0);
 }
 @media (min-width: 880px) { .initials.portrait { padding: 12px; } }
 .initials.portrait img { border: 3px solid var(--forest); }
-.speakers .inline-key.key-main { background: var(--butter); box-shadow: none; }
-.speakers .tag-main { background: var(--butter); color: var(--forest); border-color: var(--butter); }
+.speakers .inline-key.key-main { background: var(--sage); box-shadow: none; }
+.speakers .tag-main { background: var(--sage); color: var(--forest); border-color: var(--sage); }
 
 .tools button.is-locked { opacity: 0.4; cursor: not-allowed; }
 .tools button.is-locked:hover { background: transparent; color: var(--butter); }
